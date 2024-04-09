@@ -1,6 +1,3 @@
-import { RecentCommentData, WalineUser } from '@waline/api';
-export * from '@waline/api';
-
 type WalineCommentSorting = 'latest' | 'oldest' | 'hottest';
 type WalineEmojiPresets = `//${string}` | `http://${string}` | `https://${string}`;
 interface WalineEmojiInfo {
@@ -105,7 +102,79 @@ interface WalineSearchOptions {
 type WalineMeta = 'nick' | 'mail' | 'link';
 type WalineImageUploader = (image: File) => Promise<string>;
 type WalineHighlighter = (code: string, lang: string) => string;
-type WalineTeXRenderer = (blockMode: boolean, tex: string) => string;
+type WalineTexRenderer = (blockMode: boolean, tex: string) => string;
+
+interface WalineCommentData {
+    /**
+     * User Nickname
+     */
+    nick: string;
+    /**
+     * User email
+     */
+    mail: string;
+    /**
+     * User link
+     */
+    link?: string;
+    /**
+     * Content of comment
+     */
+    comment: string;
+    /**
+     * User Agent
+     */
+    ua: string;
+    /**
+     * Parent comment id
+     */
+    pid?: string;
+    /**
+     * Root comment id
+     */
+    rid?: string;
+    /**
+     * User id being at
+     */
+    at?: string;
+    /**
+     * Comment link
+     */
+    url: string;
+    /**
+     * Recaptcha Token
+     */
+    recaptchaV3?: string;
+}
+type WalineCommentStatus = 'approved' | 'waiting' | 'spam';
+interface WalineComment extends Exclude<WalineCommentData, 'ua'> {
+    /**
+     * User avatar
+     */
+    avatar: string;
+    /**
+     * User type
+     */
+    type?: 'administrator' | 'guest' | `verify:${string}`;
+    objectId: string;
+    /**
+     * Time ISOString when the comment is created
+     */
+    createdAt: string;
+    insertedAt: string;
+    updatedAt: string;
+    children: WalineComment[];
+    sticky?: boolean;
+    browser?: string;
+    os?: string;
+    level?: number;
+    addr?: string;
+    label?: string;
+    user_id?: string | number;
+    status?: WalineCommentStatus;
+    like?: number;
+    orig?: string;
+}
 
 interface WalineDateLocale {
     seconds: string;
@@ -245,8 +314,6 @@ interface WalineProps {
      * - `'ru'`
      * - `'ru-ru'`
      * - `'ru-RU'`
-     * - `'fr-FR'`
-     * - `'fr'`
      *
      * Display language for waline
      *
@@ -268,8 +335,6 @@ interface WalineProps {
      * - `'ru'`
      * - `'ru-ru'`
      * - `'ru-RU'`
-     * - `'fr-FR'`
-     * - `'fr'`
      *
      * @default navigator.language
      */
@@ -345,7 +410,7 @@ interface WalineProps {
      *
      * @default true
      */
-    texRenderer?: WalineTeXRenderer | boolean;
+    texRenderer?: WalineTexRenderer | boolean;
     /**
      *
      * 登录模式状态，可选值:
@@ -379,10 +444,6 @@ interface WalineProps {
      * recaptcha v3 client key
      */
     recaptchaV3Key?: string;
-    /**
-     * turnstile client key
-     */
-    turnstileKey?: string;
     /**
      * reaction
      */
@@ -462,7 +523,6 @@ interface WalineCommentCountOptions {
      */
     lang?: string;
 }
-
 declare const commentCount: ({ serverURL, path, selector, lang, }: WalineCommentCountOptions) => WalineAbort;
 
 interface WalineInstance {
@@ -535,7 +595,6 @@ interface WalinePageviewCountOptions {
      */
     lang?: string;
 }
-
 declare const pageviewCount: ({ serverURL, path, selector, update, lang, }: WalinePageviewCountOptions) => WalineAbort;
 
 declare const version: string;
@@ -574,7 +633,7 @@ interface WalineRecentCommentsResult {
      *
      * Comment Data
      */
-    comments: RecentCommentData[];
+    comments: WalineComment[];
     /**
      * 取消挂载挂件
      *
@@ -583,6 +642,10 @@ interface WalineRecentCommentsResult {
     destroy: () => void;
 }
 declare const RecentComments: ({ el, serverURL, count, lang, }: WalineRecentCommentsOptions) => Promise<WalineRecentCommentsResult>;
+
+interface WalineUser extends Pick<WalineComment, 'nick' | 'link' | 'avatar' | 'label' | 'level'> {
+    count: number;
+}
 
 interface WalineUserListOptions {
     /**
@@ -644,4 +707,4 @@ interface WalineUserListResult {
 }
 declare const UserList: ({ el, serverURL, count, locale, lang, mode, }: WalineUserListOptions) => Promise<WalineUserListResult>;
 
-export { RecentComments, UserList, type WalineAbort, type WalineCommentCountOptions, type WalineCommentSorting, type WalineDateLocale, type WalineEmojiInfo, type WalineEmojiMaps, type WalineEmojiPresets, type WalineHighlighter, type WalineImageUploader, type WalineInitOptions, type WalineInstance, type WalineLevelLocale, type WalineLocale, type WalineLoginStatus, type WalineMeta, type WalinePageviewCountOptions, type WalineProps, type WalineReactionLocale, type WalineRecentCommentsOptions, type WalineRecentCommentsResult, type WalineSearchImageData, type WalineSearchOptions, type WalineSearchResult, type WalineTeXRenderer, type WalineUserListOptions, type WalineUserListResult, commentCount, DEFAULT_LOCALES as defaultLocales, init, pageviewCount, version };
+export { RecentComments, UserList, WalineAbort, WalineComment, WalineCommentCountOptions, WalineCommentData, WalineCommentSorting, WalineCommentStatus, WalineDateLocale, WalineEmojiInfo, WalineEmojiMaps, WalineEmojiPresets, WalineHighlighter, WalineImageUploader, WalineInitOptions, WalineInstance, WalineLevelLocale, WalineLocale, WalineLoginStatus, WalineMeta, WalinePageviewCountOptions, WalineProps, WalineReactionLocale, WalineRecentCommentsOptions, WalineRecentCommentsResult, WalineSearchImageData, WalineSearchOptions, WalineSearchResult, WalineTexRenderer, WalineUserListOptions, WalineUserListResult, commentCount, DEFAULT_LOCALES as defaultLocales, init, pageviewCount, version };
